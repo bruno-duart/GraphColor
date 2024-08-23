@@ -15,7 +15,7 @@ void random_individual(int num_color, const Graph &graph, Individual& indv);
 
 
 // Método para copiar uma solução para outra
-void copy_individual(const Individual &from, const Fitness& fit_from, Individual &to, Fitness& fit_to, const Graph &graph);
+void copy_individual(const Individual &from, const Fitness& fit_from, Individual &to, Fitness& fit_to);
 
 // Função para criar uma solução inicial
 Individual initialize_individual(int num_color, const Graph &graph);

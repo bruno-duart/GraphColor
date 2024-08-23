@@ -5,7 +5,21 @@
 #include "solution.h"
 #include "utils.h"
 
-class ABCGraphColoring
+class MetaHeuristic {
+public:
+    Graph graph;
+    int num_colors;
+
+    MetaHeuristic(const Graph& graph, int num_colors)
+    : num_colors{num_colors}, graph{graph}{
+
+    }
+
+    virtual ~MetaHeuristic(){}
+
+}
+
+class ABCGraphColoring : public MetaHeuristic
 {
 private:
     std::vector<Individual> colony;
@@ -16,38 +30,37 @@ private:
     int limit;
     int max_iter;
 
-    int num_colors;
 
 public:
-    ABCGraphColoring(int num_bees, int num_colors, int max_iter, int limit)
-        : num_bees{num_bees}, num_colors{num_colors}, max_iter{max_iter}, limit{limit}
+    ABCGraphColoring(int num_bees, int num_colors, int max_iter, int limit, const Graph &graph)
+        : MetaHeuristic(graph, num_colors), num_bees{num_bees}, max_iter{max_iter}, limit{limit}
     {
         colony.resize(num_bees);
         arrayFitness.resize(num_bees);
         limit_no_improve.resize(num_bees, 0);
     }
 
-    ~ABCGraphColoring()
+    ~ABCGraphColoring() override
     {
     }
 
-    void initialize_colony(const Graph &graph);
+    void initialize_colony();
 
     void calc_probabilities();
 
-    void employed_bee_phase(const Graph &graph);
+    void employed_bee_phase();
 
-    void onlooker_bee_phase(const Graph &graph);
+    void onlooker_bee_phase();
 
-    void scout_bee_phase(const Graph &graph);
+    void scout_bee_phase();
 
-    void waggle_dance(int idx_bee, const Graph &graph);
+    void waggle_dance(int idx_bee);
 
-    void random_choice_local_search(int index_individual, const Graph &graph, int num_colors);
+    void random_choice_local_search(int index_individual);
 
     int find_best_bee();
 
-    Individual run(int *last_iter, const Graph &graph);
+    Individual run(int *last_iter);
 
     void print_colony() const;
 

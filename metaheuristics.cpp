@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <numeric>
 
-void ABCGraphColoring::initialize_colony(const Graph &graph)
+void ABCGraphColoring::initialize_colony()
 {
     for (int i = 0; i < num_bees; ++i)
     {
@@ -27,7 +27,7 @@ void ABCGraphColoring::calc_probabilities()
     }
 }
 
-void ABCGraphColoring::employed_bee_phase(const Graph &graph)
+void ABCGraphColoring::employed_bee_phase()
 {
     for (int i = 0; i < num_bees; ++i)
     {
@@ -40,7 +40,7 @@ void ABCGraphColoring::employed_bee_phase(const Graph &graph)
     }
 }
 
-void ABCGraphColoring::onlooker_bee_phase(const Graph &graph)
+void ABCGraphColoring::onlooker_bee_phase()
 {
     calc_probabilities();
 
@@ -59,7 +59,7 @@ void ABCGraphColoring::onlooker_bee_phase(const Graph &graph)
     }
 }
 
-void ABCGraphColoring::scout_bee_phase(const Graph &graph)
+void ABCGraphColoring::scout_bee_phase()
 {
     for (int i = 0; i < num_bees; ++i)
     {
@@ -72,7 +72,7 @@ void ABCGraphColoring::scout_bee_phase(const Graph &graph)
     }
 }
 
-void ABCGraphColoring::waggle_dance(int idx_bee, const Graph &graph)
+void ABCGraphColoring::waggle_dance(int idx_bee)
 {
     int idx_other_bee = randint_diff(0, num_bees - 1, idx_bee);
     int rand_vertex = randint(0, graph.getNumVertices() - 1);
@@ -91,7 +91,7 @@ void ABCGraphColoring::waggle_dance(int idx_bee, const Graph &graph)
     }
 }
 
-void ABCGraphColoring::random_choice_local_search(int index_individual, const Graph &graph, int num_colors)
+void ABCGraphColoring::random_choice_local_search(int index_individual, int num_colors)
 {
     int rand_vertex = randint(0, graph.getNumVertices() - 1);
     int old_color = colony.at(index_individual)[rand_vertex];
@@ -117,9 +117,9 @@ int ABCGraphColoring::find_best_bee()
     return idx;
 }
 
-Individual ABCGraphColoring::run(int *last_iter, const Graph &graph)
+Individual ABCGraphColoring::run(int *last_iter)
 {
-    initialize_colony(graph);
+    initialize_colony();
 
     Individual best_bee{};
     Fitness best_fit{};
@@ -130,9 +130,9 @@ Individual ABCGraphColoring::run(int *last_iter, const Graph &graph)
     int num_iter_no_improv = 0;
     while (num_iter_no_improv < max_iter)
     {
-        employed_bee_phase(graph);
-        onlooker_bee_phase(graph);
-        scout_bee_phase(graph);
+        employed_bee_phase();
+        onlooker_bee_phase();
+        scout_bee_phase();
 
         int current_best_bee = find_best_bee();
         if (best_fit > arrayFitness[current_best_bee])

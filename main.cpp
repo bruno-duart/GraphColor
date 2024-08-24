@@ -13,52 +13,24 @@ int main()
     srand(time(nullptr));
 
     // Exemplo de uso: carregando um grafo a partir de um arquivo DIMACS
-    std::string filename = "instances/myciel3.col";
+    std::string filename = "instances/myciel4.col";
     Graph graph(filename);
-    int num_color = 4;
+    int num_color = 5;
 
-    // Exibe o grafo
-    // graph.printGraph();
-
-    Individual indv{initialize_individual(4, graph)};
+    Individual indv{};
     Fitness fit{};
+
+    int num_bees{300};
+    int max_iter{100};
+    int limit{10};
+
+    ABCGraphColoring abc = ABCGraphColoring(num_bees, num_color, max_iter, limit, graph);
+
+    indv = abc.run();
     evaluate_fitness(graph, indv, fit);
-    // print_individual(indv, fit);
 
-    int num_bees{10};
-    int max_iter{1};
-    int limit{0};
+    print_individual(indv, fit);
 
-    ABCGraphColoring abc = ABCGraphColoring(num_bees, num_color, max_iter, limit);
-
-    abc.initialize_colony(graph);
-    // abc.print_colony();
-
-    std::cout << "employed phase\n";
-    abc.employed_bee_phase(graph);
-    abc.print_colony();
-
-    // for (int i{0}; i < num_bees; ++i)
-    // {
-    //     abc.print_bee(i);
-    //     abc.waggle_dance(i, graph);
-    //     abc.print_bee(i);
-    //     std::cout << "--\n";
-    // }
-
-    std::cout << "onlooker phase\n";
-    abc.onlooker_bee_phase(graph);
-    abc.print_colony();
-
-    abc.print_limit_no_improve();
-
-    std::cout << "scout phase\n";
-    abc.scout_bee_phase(graph);
-    abc.print_colony();
-
-    int idx = abc.find_best_bee();
-    std::cout << "best_bee: " << idx << '\n';
-    abc.print_bee(idx);
 
     return 0;
 }

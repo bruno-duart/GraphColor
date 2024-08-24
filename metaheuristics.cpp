@@ -29,10 +29,10 @@ void ABCGraphColoring::calc_probabilities()
 
 void ABCGraphColoring::employed_bee_phase()
 {
-    for (int i = 0; i < num_bees; ++i)
+    for (int i = 0; i < num_bees / 2; ++i)
     {
         Fitness old_fit = arrayFitness[i];
-        random_choice_local_search(i, graph, num_colors);
+        random_choice_local_search(i);
         if (old_fit <= arrayFitness[i])
         {
             limit_no_improve[i]++;
@@ -44,18 +44,31 @@ void ABCGraphColoring::onlooker_bee_phase()
 {
     calc_probabilities();
 
-    for (int i = 0; i < num_bees; ++i)
+    int emp_idx{0};
+    int i{num_bees/2};
+
+    // std::cout << "emp_idx: " << emp_idx << " - i : " << i << std::endl;
+
+    while (i < num_bees)
     {
         double r = static_cast<double>(rand()) / RAND_MAX;
-        if (r < probabilities[i])
+        if (r < probabilities[emp_idx])
         {
+            // std::cout << "in: " << i << std::endl;
             int old_fit = arrayFitness.at(i);
-            waggle_dance(i, graph);
+            waggle_dance(i, emp_idx);
             if (old_fit <= arrayFitness.at(i))
             {
                 limit_no_improve[i]++;
             }
         }
+        else
+        {
+            if (++emp_idx == num_bees / 2)
+                emp_idx = 0;
+        }
+        
+        ++i;
     }
 }
 
@@ -72,9 +85,9 @@ void ABCGraphColoring::scout_bee_phase()
     }
 }
 
-void ABCGraphColoring::waggle_dance(int idx_bee)
+void ABCGraphColoring::waggle_dance(int idx_bee, int idx_other_bee)
 {
-    int idx_other_bee = randint_diff(0, num_bees - 1, idx_bee);
+    // int idx_other_bee = randint(0, (num_bees / 2) - 1);
     int rand_vertex = randint(0, graph.getNumVertices() - 1);
 
     int old_color = colony.at(idx_bee)[rand_vertex];
@@ -91,7 +104,7 @@ void ABCGraphColoring::waggle_dance(int idx_bee)
     }
 }
 
-void ABCGraphColoring::random_choice_local_search(int index_individual, int num_colors)
+void ABCGraphColoring::random_choice_local_search(int index_individual)
 {
     int rand_vertex = randint(0, graph.getNumVertices() - 1);
     int old_color = colony.at(index_individual)[rand_vertex];
@@ -117,7 +130,7 @@ int ABCGraphColoring::find_best_bee()
     return idx;
 }
 
-Individual ABCGraphColoring::run(int *last_iter)
+Individual ABCGraphColoring::run()
 {
     initialize_colony();
 
@@ -144,7 +157,6 @@ Individual ABCGraphColoring::run(int *last_iter)
         {
             num_iter_no_improv++;
         }
-        (*last_iter)++;
     }
 
     return best_bee;

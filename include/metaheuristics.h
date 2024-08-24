@@ -17,7 +17,7 @@ public:
 
     virtual ~MetaHeuristic(){}
 
-}
+};
 
 class ABCGraphColoring : public MetaHeuristic
 {
@@ -54,13 +54,13 @@ public:
 
     void scout_bee_phase();
 
-    void waggle_dance(int idx_bee);
+    void waggle_dance(int idx_bee, int idx_other_bee);
 
     void random_choice_local_search(int index_individual);
 
     int find_best_bee();
 
-    Individual run(int *last_iter);
+    Individual run();
 
     void print_colony() const;
 

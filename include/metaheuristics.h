@@ -9,6 +9,8 @@ class MetaHeuristic {
 public:
     Graph graph;
     int num_colors;
+    int num_iters;
+    int iter_found_best;
 
     MetaHeuristic(const Graph& graph, int num_colors)
     : num_colors{num_colors}, graph{graph}{

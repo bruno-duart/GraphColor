@@ -31,8 +31,10 @@ int main()
 
     print_individual(indv, fit);
 
+    std::cout << fit << ';' << num_color << ';' << num_bees << ';' << limit << ';' << max_iter;
 
     return 0;
 }
 
 // g++ main.cpp graphs.cpp solution.cpp metaheuristics.cpp utils.cpp -I include -o main
+//fprintf(results, "%d;%f;%d;%d;%d;%d;%d\n", best->num_conflitos, (double)time0/CLOCKS_PER_SEC, *iter, num_bees, num_colors, limit, max_iter);

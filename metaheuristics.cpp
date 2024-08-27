@@ -133,7 +133,7 @@ int ABCGraphColoring::find_best_bee()
 Individual ABCGraphColoring::run()
 {
     initialize_colony();
-
+    
     Individual best_bee{};
     Fitness best_fit{};
 
@@ -141,6 +141,8 @@ Individual ABCGraphColoring::run()
     copy_individual(colony[idx_best], arrayFitness[idx_best], best_bee, best_fit);
 
     int num_iter_no_improv = 0;
+    num_iters = 0;
+
     while (num_iter_no_improv < max_iter)
     {
         employed_bee_phase();
@@ -152,11 +154,13 @@ Individual ABCGraphColoring::run()
         {
             copy_individual(colony[current_best_bee], arrayFitness[current_best_bee], best_bee, best_fit);
             num_iter_no_improv = 0;
+            iter_found_best = num_iters;
         }
         else
         {
             num_iter_no_improv++;
         }
+        num_iters++;
     }
 
     return best_bee;

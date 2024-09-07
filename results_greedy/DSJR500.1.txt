@@ -1,0 +1,1 @@
+7;256;instances/DSJR500.1.col;500;3555

@@ -1,0 +1,1 @@
+28;184;instances/queen8_12.col;96;2736

@@ -63,4 +63,4 @@ int main()
     return 0;
 }
 
-// g++ main.cpp graphs.cpp solution.cpp metaheuristics.cpp utils.cpp -I include -o main
+// g++ main.cpp lib/graphs.cpp lib/solution.cpp lib/metaheuristics.cpp lib/utils.cpp -I include -o main

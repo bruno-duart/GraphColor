@@ -22,5 +22,5 @@ int main() {
 
     return 0;
 }
-// g++ main_test_greedy.cpp graphs.cpp solution.cpp heuristics.cpp utils.cpp -I include -o main_test_greedy
+// g++ main_test_greedy.cpp lib/graphs.cpp lib/solution.cpp lib/heuristics.cpp lib/utils.cpp -I include -o main_test_greedy
 // ./main_test_greedy

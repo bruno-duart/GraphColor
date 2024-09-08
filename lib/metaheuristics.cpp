@@ -7,6 +7,28 @@
 #include <algorithm>
 #include <numeric>
 
+int MetaHeuristic::find_color_least_conflicts(const Individual &indv, int current_vert)
+{
+    std::vector<int> conflicts_by_color(num_colors, 0);
+
+    for (auto neighbor : graph.adjList[current_vert])
+    {
+        int neighbor_color = indv[neighbor];
+        if (neighbor_color != -1) // Apenas contar conflitos se o vizinho já tiver uma cor
+        {
+            conflicts_by_color[neighbor_color]++;
+        }
+    }
+
+    int least_conflict_color{0};
+    for (int i{1}; i < num_colors; ++i)
+    {
+        if (conflicts_by_color[i] < conflicts_by_color[least_conflict_color])
+            least_conflict_color = i;
+    }
+    return least_conflict_color;
+}
+
 void ABCGraphColoring::initialize_colony()
 {
     for (int i = 0; i < num_bees; ++i)
@@ -45,7 +67,7 @@ void ABCGraphColoring::onlooker_bee_phase()
     calc_probabilities();
 
     int emp_idx{0};
-    int i{num_bees/2};
+    int i{num_bees / 2};
 
     // std::cout << "emp_idx: " << emp_idx << " - i : " << i << std::endl;
 
@@ -67,7 +89,7 @@ void ABCGraphColoring::onlooker_bee_phase()
             if (++emp_idx == num_bees / 2)
                 emp_idx = 0;
         }
-        
+
         ++i;
     }
 }
@@ -133,7 +155,7 @@ int ABCGraphColoring::find_best_bee()
 Individual ABCGraphColoring::run()
 {
     initialize_colony();
-    
+
     Individual best_bee{};
     Fitness best_fit{};
 
@@ -198,4 +220,61 @@ void ABCGraphColoring::print_limit_no_improve() const
 void ABCGraphColoring::print_bee(int idx) const
 {
     print_individual(colony.at(idx), arrayFitness[idx]);
+}
+
+/////////////////////////////////////////////////////
+
+Individual GRASPGraphColoring::BuildPhase()
+{
+    Individual new_indv(graph.getNumVertices(), -1);
+
+    for (int v{0}; v < graph.getNumVertices(); ++v)
+    {
+        std::vector<bool> restricted_colors(num_colors, false);
+
+        for (auto adjacent : graph.adjList[v])
+        {
+            if (new_indv[adjacent] != -1)
+            {
+                restricted_colors[new_indv[adjacent]] = true;
+            }
+        }
+
+        std::vector<int> available_colors{};
+        for (int i{0}; i < num_colors; ++i)
+        {
+            if (!restricted_colors[i])
+                available_colors.push_back(i);
+        }
+
+        if (!available_colors.empty())
+        {
+            int rcl_size = std::min((int)available_colors.size(), max_rcl_size);
+
+            std::vector<int> rcl;
+            for(int i{0}; i < rcl_size; ++i)
+                rcl.push_back(available_colors[i]);
+
+            new_indv[v] = rcl[randint(0, rcl.size() - 1)];
+        }
+        else
+        {
+            new_indv[v] = find_color_least_conflicts(new_indv, v);
+        }
+    }
+    return new_indv;
+}
+
+void GRASPGraphColoring::LocalSearch()
+{
+}
+
+void GRASPGraphColoring::UpdateSolution()
+{
+}
+
+Individual GRASPGraphColoring::run()
+{
+    Individual indv;
+    return indv;
 }

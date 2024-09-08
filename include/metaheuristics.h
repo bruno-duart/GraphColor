@@ -5,20 +5,42 @@
 #include "solution.h"
 #include "utils.h"
 
-class MetaHeuristic {
+class MetaHeuristic
+{
 public:
     Graph graph;
     int num_colors;
     int num_iters;
     int iter_found_best;
 
-    MetaHeuristic(const Graph& graph, int num_colors)
-    : num_colors{num_colors}, graph{graph}{
-
+    MetaHeuristic(const Graph &graph, int num_colors)
+        : num_colors{num_colors}, graph{graph}
+    {
     }
 
-    virtual ~MetaHeuristic(){}
+    virtual ~MetaHeuristic() {}
 
+    int find_color_least_conflicts(const Individual &indv, int current_vert);
+};
+
+class GRASPGraphColoring : public MetaHeuristic
+{
+    Individual best_indv;
+    int max_rcl_size;
+
+public:
+    GRASPGraphColoring(const Graph &graph, int num_colors, int max_rcl_size)
+        : MetaHeuristic(graph, num_colors), max_rcl_size{max_rcl_size}
+    {
+    }
+
+    ~GRASPGraphColoring() override {}
+
+    Individual BuildPhase();
+    void LocalSearch();
+    void UpdateSolution();
+
+    Individual run();
 };
 
 class ABCGraphColoring : public MetaHeuristic
@@ -31,7 +53,6 @@ private:
     int num_bees;
     int limit;
     int max_iter;
-
 
 public:
     ABCGraphColoring(int num_bees, int num_colors, int max_iter, int limit, const Graph &graph)

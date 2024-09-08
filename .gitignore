@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+#other files
+run_greedy
+main
+main_test_greedy
+main_test_grasp

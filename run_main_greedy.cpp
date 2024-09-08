@@ -55,5 +55,5 @@ int main(int argc, char *argv[])
     //           << ';' << graph.getNumEdges() << std::endl;
     return 0;
 }
-// g++ run_main_greedy.cpp graphs.cpp solution.cpp heuristics.cpp utils.cpp -I include -o run_greedy
+// g++ lib/run_main_greedy.cpp lib/graphs.cpp lib/solution.cpp lib/heuristics.cpp lib/utils.cpp -I include -o run_greedy
 // ./run_greedy

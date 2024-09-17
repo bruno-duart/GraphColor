@@ -8,6 +8,61 @@
 #include <vector>
 #include <numeric>
 
+Individual GreedyGraphColoring::run_pseudo_greedy(){
+    indv.assign(graph.getNumVertices(), -1);
+    Fitness fit{0};
+
+    //Seleção dos vértices a serem pré-coloridos aleatoriamente
+    std::set<int> pre_colored_vertices;
+    while ((int) pre_colored_vertices.size() < 3){
+        int rand_vert{randint(0, graph.getNumVertices()-1)};
+        pre_colored_vertices.insert(rand_vert);
+    }
+    //Atribuição aleatória de cores
+    for (int v : pre_colored_vertices){
+        indv[v] = randint(0, num_color-1);
+    }
+    
+    // Atribuir cores aos vértices com estratégia gulosa
+    for (int v{0}; v < graph.getNumVertices(); ++v)
+    {
+        if (indv[v] != -1)
+            continue;
+
+        std::vector<bool> forbidden_colors(num_color, false);
+        for (auto neighbor : graph.adjList[v])
+        {
+            if (indv[neighbor] != -1)
+            {
+                forbidden_colors[indv[neighbor]] = true;
+            }
+        }
+        
+        int chosen_color = -1;
+        for (int color = 0; color < num_color; ++color)
+        {
+            if (!forbidden_colors[color])
+            {
+                chosen_color = color;
+                break;
+            }
+        }
+
+        if (chosen_color == -1)
+        {
+            chosen_color = find_color_least_conflicts(v);
+            for (auto neighbor : graph.adjList[v])
+            {
+                if (indv[neighbor] == chosen_color)
+                    ++fit;
+            }
+        }
+
+        indv[v] = chosen_color;
+    }
+    return indv
+}
+
 Individual GreedyGraphColoring::run()
 {
     /*

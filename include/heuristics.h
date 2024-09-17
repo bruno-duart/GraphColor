@@ -20,6 +20,8 @@ public:
 
     Individual run();
 
+    Individual run_pseudo_greedy();
+
     int find_color_least_conflicts(int current_vert);
 };
 #endif

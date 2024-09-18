@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <set>
 #include <numeric>
 
 Individual GreedyGraphColoring::run_pseudo_greedy(){
@@ -60,7 +61,7 @@ Individual GreedyGraphColoring::run_pseudo_greedy(){
 
         indv[v] = chosen_color;
     }
-    return indv
+    return indv;
 }
 
 Individual GreedyGraphColoring::run()

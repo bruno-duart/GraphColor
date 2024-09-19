@@ -2,6 +2,7 @@
 #include "graphs.h"
 #include "solution.h"
 #include "utils.h"
+#include "heuristics.h"
 
 #include <iostream>
 #include <algorithm>
@@ -31,9 +32,29 @@ int MetaHeuristic::find_color_least_conflicts(const Individual &indv, int curren
 
 void ABCGraphColoring::initialize_colony()
 {
-    for (int i = 0; i < num_bees; ++i)
+    for (int i{0}; i < num_bees; ++i)
     {
         colony[i] = initialize_individual(num_colors, graph);
+        evaluate_fitness(graph, colony[i], arrayFitness[i]);
+    }
+}
+
+void ABCGraphColoring::initialize_colony_pseudogreedy()
+{
+    GreedyGraphColoring greedy = new GreedyGraphColoring(graph, num_colors);
+    for (int i{0}; i < num_bees; ++i)
+    {
+        colony[i] = greedy.run_pseudo_greedy();
+        evaluate_fitness(graph, colony[i], arrayFitness[i]);
+    }
+}
+
+void ABCGraphColoring::initialize_colony_grasp_buildphase(int max_rcl_size)
+{
+    GRASPGraphColoring grasp = new GRASPGraphColoring(graph, num_colors, max_rcl_size);
+    for (int i{0}; i < num_bees; ++i)
+    {
+        colony[i] = grasp.BuildPhase();
         evaluate_fitness(graph, colony[i], arrayFitness[i]);
     }
 }
@@ -188,6 +209,53 @@ Individual ABCGraphColoring::run()
     return best_bee;
 }
 
+Individual ABCGraphColoring::run(char method)
+{
+    if (method == 'p') // pseudo_greedy
+    {
+        initialize_colony_pseudogreedy();
+    }
+    else if (method == 'g') // grasp buildphase
+    {
+        initialize_colony_grasp_buildphase(num_colors / 2);
+    }
+    else // random
+    {
+        initialize_colony();
+    }
+
+    Individual best_bee{};
+    Fitness best_fit{};
+
+    int idx_best = find_best_bee();
+    copy_individual(colony[idx_best], arrayFitness[idx_best], best_bee, best_fit);
+
+    int num_iter_no_improv = 0;
+    num_iters = 0;
+
+    while (num_iter_no_improv < max_iter)
+    {
+        employed_bee_phase();
+        onlooker_bee_phase();
+        scout_bee_phase();
+
+        int current_best_bee = find_best_bee();
+        if (best_fit > arrayFitness[current_best_bee])
+        {
+            copy_individual(colony[current_best_bee], arrayFitness[current_best_bee], best_bee, best_fit);
+            num_iter_no_improv = 0;
+            iter_found_best = num_iters;
+        }
+        else
+        {
+            num_iter_no_improv++;
+        }
+        num_iters++;
+    }
+
+    return best_bee;
+}
+
 void ABCGraphColoring::print_colony() const
 {
     for (int i{0}; i < num_bees; ++i)
@@ -252,7 +320,7 @@ Individual GRASPGraphColoring::BuildPhase()
             int rcl_size = std::min((int)available_colors.size(), max_rcl_size);
 
             std::vector<int> rcl;
-            for(int i{0}; i < rcl_size; ++i)
+            for (int i{0}; i < rcl_size; ++i)
                 rcl.push_back(available_colors[i]);
 
             new_indv[v] = rcl[randint(0, rcl.size() - 1)];

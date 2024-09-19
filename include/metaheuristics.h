@@ -69,6 +69,10 @@ public:
 
     void initialize_colony();
 
+    void initialize_colony_pseudogreedy();
+
+    void initialize_colony_grasp_buildphase(int max_rcl_size);
+
     void calc_probabilities();
 
     void employed_bee_phase();
@@ -84,6 +88,7 @@ public:
     int find_best_bee();
 
     Individual run();
+    Individual run(char method);
 
     void print_colony() const;
 

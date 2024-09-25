@@ -32,6 +32,7 @@
 *.app
 
 #other files
+run_abc
 run_greedy
 main
 main_test_greedy

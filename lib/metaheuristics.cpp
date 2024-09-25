@@ -41,7 +41,7 @@ void ABCGraphColoring::initialize_colony()
 
 void ABCGraphColoring::initialize_colony_pseudogreedy()
 {
-    GreedyGraphColoring greedy = new GreedyGraphColoring(graph, num_colors);
+    GreedyGraphColoring greedy = GreedyGraphColoring(graph, num_colors);
     for (int i{0}; i < num_bees; ++i)
     {
         colony[i] = greedy.run_pseudo_greedy();
@@ -51,7 +51,7 @@ void ABCGraphColoring::initialize_colony_pseudogreedy()
 
 void ABCGraphColoring::initialize_colony_grasp_buildphase(int max_rcl_size)
 {
-    GRASPGraphColoring grasp = new GRASPGraphColoring(graph, num_colors, max_rcl_size);
+    GRASPGraphColoring grasp = GRASPGraphColoring(graph, num_colors, max_rcl_size);
     for (int i{0}; i < num_bees; ++i)
     {
         colony[i] = grasp.BuildPhase();

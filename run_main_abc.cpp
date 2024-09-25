@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     }
 
     // Gravar os resultados no arquivo de saída
-    output_file << fit << ';' << time_span.count() << ';'
+    output_file << fit << ';' << time_span.count() << ';' << abc.iter_found_best << ';'
                 << num_bees << ';' << limit << ';' << max_iter << ';'
                 << filename << ';' << graph.getNumVertices()
                 << ';' << graph.getNumEdges() << std::endl;

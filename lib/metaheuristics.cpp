@@ -204,6 +204,9 @@ Individual ABCGraphColoring::run()
             num_iter_no_improv++;
         }
         num_iters++;
+
+        if(best_fit == 0)
+            break;
     }
 
     return best_bee;
@@ -251,6 +254,9 @@ Individual ABCGraphColoring::run(char method)
             num_iter_no_improv++;
         }
         num_iters++;
+
+        if(best_fit == 0)
+            break;
     }
 
     return best_bee;

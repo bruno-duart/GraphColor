@@ -37,7 +37,7 @@ public:
     ~GRASPGraphColoring() override {}
 
     Individual BuildPhase();
-    void LocalSearch();
+    void LocalSearch(Individual &indv, Fitness &fit, double &acceptanceratio);
     void UpdateSolution();
 
     Individual run();

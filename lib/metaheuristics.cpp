@@ -205,7 +205,7 @@ Individual ABCGraphColoring::run()
         }
         num_iters++;
 
-        if(best_fit == 0)
+        if (best_fit == 0)
             break;
     }
 
@@ -255,7 +255,7 @@ Individual ABCGraphColoring::run(char method)
         }
         num_iters++;
 
-        if(best_fit == 0)
+        if (best_fit == 0)
             break;
     }
 
@@ -339,8 +339,36 @@ Individual GRASPGraphColoring::BuildPhase()
     return new_indv;
 }
 
-void GRASPGraphColoring::LocalSearch()
+void GRASPGraphColoring::LocalSearch(Individual &indv, Fitness &fit, double &acceptanceratio)
 {
+    Fitness old_fit{fit};
+
+    int first_index{randint(0, graph.getNumVertices() - 1)};
+    int second_index{randint_diff(0, graph.getNumVertices() - 1, first_index)};
+
+    int aux{indv[first_index]};
+    indv[first_index] = indv[second_index];
+    indv[second_index] = aux;
+
+    evaluate_fitness(graph, indv, fit);
+
+    if (fit > old_fit)
+    {
+        Fitness deltaE{fit - old_fit};
+        double probability{randdouble(0.0, 1.0)};
+        if (proability < exp(-deltaE / acceptanceratio))
+        {
+            acceptanceratio *= 0.99;
+            return;
+        }
+        else
+        {
+            aux = indv[first_index];
+            indv[first_index] = indv[second_index];
+            indv[second_index] = aux;
+            fit = old_fit;
+        }
+    }
 }
 
 void GRASPGraphColoring::UpdateSolution()

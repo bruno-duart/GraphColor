@@ -10,7 +10,7 @@ tail -n +2 "$csv_file" | while IFS=';' read -r instance_name V E D xk k group; d
         if $method = "p"; then
             output_folder="pseudo_greedy"
         elif $method = "g"; then
-            output_folder="gras_build"
+            output_folder="grasp_build"
         else
             output_folder="random"
         fi

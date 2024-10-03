@@ -2,6 +2,7 @@
 
 #include <cstdlib> // Para usar rand()
 #include <ctime>   // Para usar time()
+#include <random>
 
 int randint(int min, int max)
 {

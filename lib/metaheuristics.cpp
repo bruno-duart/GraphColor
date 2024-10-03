@@ -7,6 +7,7 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
+#include <cmath>
 
 int MetaHeuristic::find_color_least_conflicts(const Individual &indv, int current_vert)
 {
@@ -356,7 +357,7 @@ void GRASPGraphColoring::LocalSearch(Individual &indv, Fitness &fit, double &acc
     {
         Fitness deltaE{fit - old_fit};
         double probability{randdouble(0.0, 1.0)};
-        if (proability < exp(-deltaE / acceptanceratio))
+        if (probability < std::exp(-deltaE / acceptanceratio))
         {
             acceptanceratio *= 0.99;
             return;

@@ -11,9 +11,9 @@
 int main(int argc, char *argv[])
 {
     srand(time(nullptr));
-    if (argc < 7)
+    if (argc < 8)
     {
-        std::cout << "Please, provide parameters: <instance_path> <num_colors> <num_bees> <max_iter> <limit> <output_path>" << std::endl;
+        std::cout << "Please, provide parameters: <instance_path> <num_colors> <num_bees> <max_iter> <limit> <output_path> <method>" << std::endl;
         return 1;
     }
 
@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     int num_bees{atoi(argv[3])};
     int limit{atoi(argv[4])};
     int max_iter{atoi(argv[5])};
+    char method{argv[7][0]};
 
     Individual indv{};
     Fitness fit{};
@@ -31,7 +32,7 @@ int main(int argc, char *argv[])
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
     ABCGraphColoring abc = ABCGraphColoring(num_bees, num_color, max_iter, limit, graph);
 
-    indv = abc.run();
+    indv = abc.run(method);
     evaluate_fitness(graph, indv, fit);
 
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();

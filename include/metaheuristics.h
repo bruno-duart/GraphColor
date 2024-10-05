@@ -26,6 +26,7 @@ public:
 class GRASPGraphColoring : public MetaHeuristic
 {
     Individual best_indv;
+    Fitness best_fit;
     int max_rcl_size;
 
 public:
@@ -37,8 +38,8 @@ public:
     ~GRASPGraphColoring() override {}
 
     Individual BuildPhase();
-    void LocalSearch(Individual &indv, Fitness &fit, double &acceptanceratio);
-    void UpdateSolution();
+    void LocalSearch(Individual &indv, Fitness &fit, int &acceptanceratio);
+    void UpdateSolution(const Individual& indv, const Fitness& fit, int& acceptanceratio);
 
     Individual run();
 };

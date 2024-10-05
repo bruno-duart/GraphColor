@@ -340,12 +340,15 @@ Individual GRASPGraphColoring::BuildPhase()
     return new_indv;
 }
 
-void GRASPGraphColoring::LocalSearch(Individual &indv, Fitness &fit, double &acceptanceratio)
+void GRASPGraphColoring::LocalSearch(Individual &indv, Fitness &fit, int &acceptanceratio)
 {
     Fitness old_fit{fit};
 
     int first_index{randint(0, graph.getNumVertices() - 1)};
     int second_index{randint_diff(0, graph.getNumVertices() - 1, first_index)};
+
+    // std::cout << "first_index: " << first_index << " - second_index: " << second_index << std::endl;
+    // std::cout << "first_color: " << indv[first_index] << " - second_color: " << indv[second_index] << std::endl;
 
     int aux{indv[first_index]};
     indv[first_index] = indv[second_index];
@@ -355,29 +358,51 @@ void GRASPGraphColoring::LocalSearch(Individual &indv, Fitness &fit, double &acc
 
     if (fit > old_fit)
     {
-        Fitness deltaE{fit - old_fit};
-        double probability{randdouble(0.0, 1.0)};
-        if (probability < std::exp(-deltaE / acceptanceratio))
-        {
-            acceptanceratio *= 0.99;
-            return;
-        }
-        else
-        {
+        // Fitness deltaE{fit - old_fit};
+        // double probability{randdouble(0.0, 1.0)};
+        // if (probability < std::exp(-deltaE / acceptanceratio))
+        // {
+        //     acceptanceratio *= 0.9;
+        //     return;
+        // }
+        // else
+        // {
             aux = indv[first_index];
             indv[first_index] = indv[second_index];
             indv[second_index] = aux;
             fit = old_fit;
-        }
+        // }
     }
 }
 
-void GRASPGraphColoring::UpdateSolution()
+void GRASPGraphColoring::UpdateSolution(const Individual &indv, const Fitness &fit, int &acceptanceratio)
 {
+    evaluate_fitness(graph, best_indv, best_fit);
+
+    if (fit < best_fit)
+    {
+        copy_individual(indv, fit, best_indv, best_fit);
+        acceptanceratio = 0;
+    }
+    else {
+        acceptanceratio++;
+    }
 }
 
 Individual GRASPGraphColoring::run()
 {
-    Individual indv;
-    return indv;
+    Individual indv = GRASPGraphColoring::BuildPhase();
+    Fitness fit;
+    int acceptanceratio{1000};
+
+    evaluate_fitness(graph, indv, fit);
+    copy_individual(indv, fit, best_indv, best_fit);
+
+    while (acceptanceratio < 100 && best_fit > 0)
+    {
+        GRASPGraphColoring::LocalSearch(indv, fit, acceptanceratio);
+        GRASPGraphColoring::UpdateSolution(indv, fit, acceptanceratio);
+    }
+
+    return best_indv;
 }

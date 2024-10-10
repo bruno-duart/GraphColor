@@ -59,6 +59,10 @@ Este projeto implementa algoritmos de Coloração de Grafos, com o objetivo de r
 
     2. GRASP:
 
+       ```bash
+       g++ run_main_grasp.cpp lib/graphs.cpp lib/solution.cpp lib/metaheuristics.cpp lib/utils.cpp -I include -o run_grasp
+       ```
+
     3. Artificial Bee Colony:
 
         ```bash
@@ -66,6 +70,13 @@ Este projeto implementa algoritmos de Coloração de Grafos, com o objetivo de r
         ```
 
 4. Para executar um único caso de teste:
+    Considere os parâmetros abaixo como comuns a todos os métodos:
+    - **$instance_name**: nome do caso de teste (disponíveis na pasta instances)
+    - **$k**: número de cores disponível para colorir o grafo
+
+    Considere os parâmetros abaixo para GRASP e ABC:
+    - **$output_folder**: pasta onde os resultados serão salvos
+
     1. Greedy Method:
 
         ```bash
@@ -74,18 +85,24 @@ Este projeto implementa algoritmos de Coloração de Grafos, com o objetivo de r
 
     2. GRASP:
 
+        ```bash
+        ./run_grasp instances/$instance_name.col $k $method results_grasp/$output_folder/$instance_name.txt
+        ```
+
+        Considere:
+        - **$method**: método completo 'g', ou somente a fase de construção do grasp 'b'
+
     3. Artificial Bee Colony:
 
         ```bash
-        ./run_abc instances/$instance_name.col $k $bees $limit $max_iter results_abc/random/$instance_name.txt
+        ./run_abc instances/$instance_name.col $k $bees $limit $max_iter results_abc/$output_folder/$instance_name.txt $method
         ```
 
-    Considere:
-    - **$instance_name**: nome do caso de teste (disponíveis na pasta instances)
-    - **$k**: número de cores disponível para colorir o grafo
-    - **$bees**: número de abelhas da colméia (50% abelhas operárias, e 50% abelhas observadoras)
-    - **$limit**: número limite de tentativas de melhora da abelha antes de ser resetada
-    - **$max_iter**: número máximo de iterações sem melhora
+        Considere os parâmetros abaixo para o ABC:
+        - **$bees**: número de abelhas da colméia (50% abelhas operárias, e 50% abelhas observadoras)
+        - **$limit**: número limite de tentativas de melhora da abelha antes de ser resetada
+        - **$max_iter**: número máximo de iterações sem melhora
+        - **$method**: método de geração de solução inicial (aleatório 'r', semi-gulosa 'p', fase de construcao grasp 'g')
 
     Os resultados da execução serão armazenados em "results_greedy/$instance_name.txt" e "results_abc/random/$instance_name.txt"
 
@@ -97,6 +114,10 @@ Este projeto implementa algoritmos de Coloração de Grafos, com o objetivo de r
         ```
 
     2. GRASP:
+
+        ```bash
+        bash shell_scripts/grasp.sh
+        ```
 
     3. Artificial Bee Colony:
 

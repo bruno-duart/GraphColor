@@ -101,3 +101,7 @@ int Graph::getNumVertices() const {
 int Graph::getNumEdges() {
     return numEdges;
 }
+
+std::vector<int> Graph::getNeighbors(int idVertice){
+    return adjList[idVertice];
+}

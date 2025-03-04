@@ -31,6 +31,8 @@ public:
 
     int getNumVertices() const;
     int getNumEdges();
+
+    std::vector<int> getNeighbors(int idVertice);
 };
 
 #endif

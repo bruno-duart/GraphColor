@@ -26,5 +26,7 @@ public:
     bool pop_front();
     int size() const;
     void print() const;
+    std::forward_list<NodeData>& get_list() ;
+    void decrease_size();
 };
 #endif

@@ -28,7 +28,16 @@ int ForwardListWrapper::size() const {
 
 void ForwardListWrapper::print() const {
     for (const auto& node : list) {
-        std::cout << "(" << node.index_i << ", " << node.undo_color << ") -> ";
+        std::cout << "(" << node.index_i << ", " << node.undo_color << "; " << node.count_iter << ") -> ";
     }
     std::cout << "NULL\n";
+}
+
+
+std::forward_list<NodeData>& ForwardListWrapper::get_list() {
+    return list;
+}
+
+void ForwardListWrapper::decrease_size() {
+    if (size_list > 0) size_list--;
 }

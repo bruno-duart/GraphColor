@@ -3,6 +3,7 @@
 #include "solution.h"
 #include "utils.h"
 #include "heuristics.h"
+#include "fwlist.h"
 
 #include <iostream>
 #include <algorithm>
@@ -590,4 +591,42 @@ Individual GRASPGraphColoring::run()
     return best_indv;
 }
 
+#pragma endregion
+
+#pragma region TabuSearch
+void TabuColoring::insert_tabu_move(int undo_color, int idx_vert){
+    tabu_list.push_back(idx_vert, undo_color, T_iter);
+}
+int TabuColoring::is_tabu_move(int undo_color, int idx_vert){
+    int position{0};
+    for(const auto& node: tabu_list.get_list()){
+        if (node.index_i == idx_vert && node.undo_color == undo_color)
+            return position;
+        position++;
+    }
+    return -1;
+}
+void TabuColoring::decrease_iterations(){
+    auto& flist = tabu_list.get_list();
+    auto prev = flist.before_begin();
+
+    for (auto it = flist.begin(); it != flist.end();){
+        it->count_iter--;
+        if(it->count_iter == 0){
+            it = flist.erase_after(prev);
+            tabu_list.decrease_size();
+        } else {
+            prev = it;
+            ++it;
+        }
+    }
+}
+
+// Individual TabuColoring::run(){
+//     // return 
+// }
+
+void TabuColoring::print_tabu_list(){
+    tabu_list.print();
+}
 #pragma endregion

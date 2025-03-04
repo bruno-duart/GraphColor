@@ -23,4 +23,7 @@ Individual initialize_individual(int num_color, const Graph &graph);
 // Método para exibir a solução
 void individual_toString(const Individual& indv); 
 void print_individual(const Individual& indv, const Fitness& fit);
+
+int compute_fitness_change(Graph &graph, Individual &ind, int vertex, int new_color);
+int find_most_conflicted_vertex(Individual &ind, Graph &graph);
 #endif

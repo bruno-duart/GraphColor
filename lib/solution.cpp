@@ -56,3 +56,53 @@ void print_individual(const Individual& indv, const Fitness& fit) {
     individual_toString(indv);
     std::cout << "fit: " << fit << std::endl;
 }
+
+
+int compute_fitness_change(Graph &graph, Individual &ind, int vertex, int new_color) 
+{
+    int old_color = ind[vertex];
+    int conflict_change = 0;
+
+    // Percorre os vizinhos do vértice
+    for (int neighbor : graph.getNeighbors(vertex)) 
+    {
+        if (ind[neighbor] == old_color) 
+        {
+            // Removendo um conflito
+            conflict_change--;
+        }
+        if (ind[neighbor] == new_color) 
+        {
+            // Adicionando um conflito
+            conflict_change++;
+        }
+    }
+
+    return conflict_change;
+}
+
+int find_most_conflicted_vertex(Individual &ind, Graph &graph) 
+{
+    int worst_vertex = -1;
+    int max_conflicts = -1;
+
+    for (int v = 0; v < graph.getNumVertices(); v++) 
+    {
+        int conflicts = 0;
+        for (int neighbor : graph.getNeighbors(v)) 
+        {
+            if (ind[v] == ind[neighbor]) 
+            {
+                conflicts++;
+            }
+        }
+
+        if (conflicts > max_conflicts) 
+        {
+            max_conflicts = conflicts;
+            worst_vertex = v;
+        }
+    }
+
+    return worst_vertex;
+}

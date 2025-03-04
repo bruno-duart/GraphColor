@@ -9,6 +9,7 @@
 #include <numeric>
 #include <cmath>
 
+#pragma region MetaHeuristic
 int MetaHeuristic::find_color_least_conflicts(const Individual &indv, int current_vert)
 {
     std::vector<int> conflicts_by_color(num_colors, 0);
@@ -30,6 +31,10 @@ int MetaHeuristic::find_color_least_conflicts(const Individual &indv, int curren
     }
     return least_conflict_color;
 }
+
+#pragma endregion
+
+#pragma region ABCGraphColoring
 
 void ABCGraphColoring::initialize_colony()
 {
@@ -71,12 +76,15 @@ void ABCGraphColoring::calc_probabilities()
     }
 }
 
-void ABCGraphColoring::employed_bee_phase()
+void ABCGraphColoring::employed_bee_phase(bool random)
 {
     for (int i = 0; i < num_bees / 2; ++i)
     {
         Fitness old_fit = arrayFitness[i];
-        random_choice_local_search(i);
+        if (random)
+            random_choice_local_search(i);
+        else
+            swap_conflicted_vertices(i);
         if (old_fit <= arrayFitness[i])
         {
             limit_no_improve[i]++;
@@ -84,50 +92,135 @@ void ABCGraphColoring::employed_bee_phase()
     }
 }
 
+// void ABCGraphColoring::onlooker_bee_phase()
+// {
+//     calc_probabilities();
+
+//     int emp_idx{0};
+//     int i{num_bees / 2};
+
+//     // std::cout << "emp_idx: " << emp_idx << " - i : " << i << std::endl;
+
+//     while (i < num_bees)
+//     {
+//         double r = static_cast<double>(rand()) / RAND_MAX;
+//         if (r < probabilities[emp_idx])
+//         {
+//             // std::cout << "in: " << i << std::endl;
+//             int old_fit = arrayFitness.at(i);
+//             waggle_dance(i, emp_idx);
+//             if (old_fit <= arrayFitness.at(i))
+//             {
+//                 limit_no_improve[i]++;
+//             }
+//         }
+//         else
+//         {
+//             if (++emp_idx == num_bees / 2)
+//                 emp_idx = 0;
+//         }
+
+//         ++i;
+//     }
+// }
+
 void ABCGraphColoring::onlooker_bee_phase()
 {
-    calc_probabilities();
+    calc_probabilities(); // Atualiza probabilidades com base na fitness
 
     int emp_idx{0};
     int i{num_bees / 2};
 
-    // std::cout << "emp_idx: " << emp_idx << " - i : " << i << std::endl;
-
     while (i < num_bees)
     {
         double r = static_cast<double>(rand()) / RAND_MAX;
-        if (r < probabilities[emp_idx])
+
+        // Critério híbrido: 80% roleta, 20% escolha aleatória
+        if (r < 0.8)  
         {
-            // std::cout << "in: " << i << std::endl;
+            if (r < probabilities[emp_idx])
+            {
+                int old_fit = arrayFitness.at(i);
+                waggle_dance(i, emp_idx);
+
+                if (old_fit <= arrayFitness.at(i))
+                {
+                    limit_no_improve[i]++;
+                }
+            }
+        }
+        else  
+        {
+            // Escolhe aleatoriamente um empregado para seguir, garantindo diversidade
+            int rand_emp_idx = randint(0, num_bees / 2 - 1);
             int old_fit = arrayFitness.at(i);
-            waggle_dance(i, emp_idx);
+            waggle_dance(i, rand_emp_idx);
+
             if (old_fit <= arrayFitness.at(i))
             {
                 limit_no_improve[i]++;
             }
         }
-        else
-        {
-            if (++emp_idx == num_bees / 2)
-                emp_idx = 0;
-        }
+
+        // Ajuste do índice dos empregados
+        if (++emp_idx == num_bees / 2)
+            emp_idx = 0;
 
         ++i;
     }
 }
 
+// void ABCGraphColoring::scout_bee_phase()
+// {
+//     for (int i = 0; i < num_bees; ++i)
+//     {
+//         if (limit_no_improve[i] > limit)
+//         {
+//             random_individual(num_colors, graph, colony.at(i));
+//             evaluate_fitness(graph, colony.at(i), arrayFitness[i]);
+//             limit_no_improve[i] = 0;
+//         }
+//     }
+// }
+
 void ABCGraphColoring::scout_bee_phase()
 {
+    static int global_no_improve = 0;  // Contador global de iterações sem melhora
+
     for (int i = 0; i < num_bees; ++i)
     {
         if (limit_no_improve[i] > limit)
         {
-            random_individual(num_colors, graph, colony.at(i));
-            evaluate_fitness(graph, colony.at(i), arrayFitness[i]);
-            limit_no_improve[i] = 0;
+            // 🔹 Critério adaptativo: se ninguém melhorou há muitas iterações, diminuir 'limit'
+            if (++global_no_improve > 10)  
+            {
+                limit = std::max(5, limit - 1);  // Reduz limite (mínimo 5)
+                global_no_improve = 0;
+            }
+
+            // 🔹 Em vez de reset completo, perturba ligeiramente antes de recriar a solução
+            if (rand() % 100 < 30)  // 30% das vezes, tenta pequena mutação
+            {
+                small_mutation(i);
+            }
+            else
+            {
+                random_individual(num_colors, graph, colony.at(i));
+                evaluate_fitness(graph, colony.at(i), arrayFitness[i]);
+            }
+            
+            limit_no_improve[i] = 0;  // Reset contador da abelha
         }
     }
 }
+
+void ABCGraphColoring::small_mutation(int index)
+{
+    int rand_vertex = randint(0, graph.getNumVertices() - 1);
+    colony.at(index)[rand_vertex] = randint(1, num_colors); // Escolhe cor aleatória
+    evaluate_fitness(graph, colony.at(index), arrayFitness[index]);
+}
+
 
 void ABCGraphColoring::waggle_dance(int idx_bee, int idx_other_bee)
 {
@@ -136,8 +229,9 @@ void ABCGraphColoring::waggle_dance(int idx_bee, int idx_other_bee)
 
     int old_color = colony.at(idx_bee)[rand_vertex];
     int old_fit = arrayFitness.at(idx_bee);
+    int new_color = colony.at(idx_other_bee)[rand_vertex];
 
-    colony.at(idx_bee)[rand_vertex] = colony.at(idx_other_bee)[rand_vertex];
+/*  colony.at(idx_bee)[rand_vertex] = colony.at(idx_other_bee)[rand_vertex];
 
     evaluate_fitness(graph, colony.at(idx_bee), arrayFitness.at(idx_bee));
 
@@ -146,21 +240,107 @@ void ABCGraphColoring::waggle_dance(int idx_bee, int idx_other_bee)
         colony.at(idx_bee)[rand_vertex] = old_color;
         arrayFitness.at(idx_bee) = old_fit;
     }
+*/
+
+    // Calcula a mudança na fitness
+    int delta_fitness = compute_fitness_change(graph, colony[idx_bee], rand_vertex, new_color);
+    
+    // Aplica a mudança
+    colony[idx_bee][rand_vertex] = new_color;
+    arrayFitness[idx_bee] += delta_fitness;
+
+    // Se a mudança piorou, reverte
+    if (delta_fitness > 0) 
+    {
+        colony[idx_bee][rand_vertex] = old_color;
+        arrayFitness[idx_bee] -= delta_fitness;
+    }
 }
 
-void ABCGraphColoring::random_choice_local_search(int index_individual)
+// void ABCGraphColoring::random_choice_local_search(int index_individual)
+// {
+//     int rand_vertex = randint(0, graph.getNumVertices() - 1);
+//     int old_color = colony.at(index_individual)[rand_vertex];
+//     int old_fit = arrayFitness.at(index_individual);
+//     int new_color = randint_diff(1, num_colors, old_color);
+
+//     /*colony.at(index_individual)[rand_vertex] = randint_diff(1, num_colors, old_color);
+//     evaluate_fitness(graph, colony.at(index_individual), arrayFitness.at(index_individual));
+
+//     if (arrayFitness.at(index_individual) > old_fit)
+//     {
+//         colony.at(index_individual)[rand_vertex] = old_color;
+//         arrayFitness.at(index_individual) = old_fit;
+//     }*/
+//     // Calcula a mudança na fitness
+//     int delta_fitness = compute_fitness_change(graph, colony[index_individual], rand_vertex, new_color);
+
+//     // Aplica a mudança
+//     colony[index_individual][rand_vertex] = new_color;
+//     arrayFitness[index_individual] += delta_fitness;
+
+//     // Se a mudança piorou, reverte
+//     if (delta_fitness > 0) 
+//     {
+//         colony[index_individual][rand_vertex] = old_color;
+//         arrayFitness[index_individual] -= delta_fitness;
+//     }
+// }
+
+void ABCGraphColoring::random_choice_local_search(int index_individual) 
 {
-    int rand_vertex = randint(0, graph.getNumVertices() - 1);
+    int rand_vertex = find_most_conflicted_vertex(colony[index_individual], graph);
+    
+    if (rand_vertex == -1) return; // Nenhum conflito encontrado
+
     int old_color = colony.at(index_individual)[rand_vertex];
-    int old_fit = arrayFitness.at(index_individual);
+    int new_color = randint_diff(1, num_colors, old_color);
 
-    colony.at(index_individual)[rand_vertex] = randint_diff(1, num_colors, old_color);
-    evaluate_fitness(graph, colony.at(index_individual), arrayFitness.at(index_individual));
+    int delta_fitness = compute_fitness_change(graph, colony[index_individual], rand_vertex, new_color);
 
-    if (arrayFitness.at(index_individual) > old_fit)
+    // Aplica a mudança
+    colony[index_individual][rand_vertex] = new_color;
+    arrayFitness[index_individual] += delta_fitness;
+
+    // Se a mudança piorou, reverte
+    if (delta_fitness > 0) 
     {
-        colony.at(index_individual)[rand_vertex] = old_color;
-        arrayFitness.at(index_individual) = old_fit;
+        colony[index_individual][rand_vertex] = old_color;
+        arrayFitness[index_individual] -= delta_fitness;
+    }
+}
+
+void ABCGraphColoring::swap_conflicted_vertices(int index_individual) 
+{
+    int v1 = find_most_conflicted_vertex(colony[index_individual], graph);
+    if (v1 == -1) return; // Nenhum conflito encontrado
+
+    // Escolhe um vizinho com conflito
+    int v2 = -1;
+    for (int neighbor : graph.getNeighbors(v1)) 
+    {
+        if (colony[index_individual][neighbor] == colony[index_individual][v1]) 
+        {
+            v2 = neighbor;
+            break;
+        }
+    }
+    if (v2 == -1) return; // Nenhum vizinho conflitante encontrado
+
+    // Troca as cores
+    std::swap(colony[index_individual][v1], colony[index_individual][v2]);
+
+    // Atualiza a fitness incrementalmente
+    int delta_fitness = compute_fitness_change(graph, colony[index_individual], v1, colony[index_individual][v1]) +
+                        compute_fitness_change(graph, colony[index_individual], v2, colony[index_individual][v2]);
+
+    arrayFitness[index_individual] += delta_fitness;
+
+    // Se piorou, reverte a troca
+    if (delta_fitness > 0) 
+    {
+        std::swap(colony[index_individual][v1], colony[index_individual][v2]);
+        arrayFitness[index_individual] -= delta_fitness;
     }
 }
 
@@ -189,7 +369,7 @@ Individual ABCGraphColoring::run()
 
     while (num_iter_no_improv < max_iter)
     {
-        employed_bee_phase();
+        employed_bee_phase(true);
         onlooker_bee_phase();
         scout_bee_phase();
 
@@ -213,7 +393,7 @@ Individual ABCGraphColoring::run()
     return best_bee;
 }
 
-Individual ABCGraphColoring::run(char method)
+Individual ABCGraphColoring::run(char method, int rcl_size)
 {
     if (method == 'p') // pseudo_greedy
     {
@@ -221,7 +401,7 @@ Individual ABCGraphColoring::run(char method)
     }
     else if (method == 'g') // grasp buildphase
     {
-        initialize_colony_grasp_buildphase(num_colors / 2);
+        initialize_colony_grasp_buildphase(rcl_size);
     }
     else // random
     {
@@ -239,7 +419,7 @@ Individual ABCGraphColoring::run(char method)
 
     while (num_iter_no_improv < max_iter)
     {
-        employed_bee_phase();
+        employed_bee_phase(true); //true é random_search, false é swap_two_colors
         onlooker_bee_phase();
         scout_bee_phase();
 
@@ -297,7 +477,10 @@ void ABCGraphColoring::print_bee(int idx) const
     print_individual(colony.at(idx), arrayFitness[idx]);
 }
 
+#pragma endregion
+
 /////////////////////////////////////////////////////
+#pragma region GRASP
 
 Individual GRASPGraphColoring::BuildPhase()
 {
@@ -406,3 +589,5 @@ Individual GRASPGraphColoring::run()
 
     return best_indv;
 }
+
+#pragma endregion

@@ -14,7 +14,7 @@ public:
     int iter_found_best;
 
     MetaHeuristic(const Graph &graph, int num_colors)
-        : num_colors{num_colors}, graph{graph}
+        : num_colors{num_colors}, graph{graph}, iter_found_best{0}
     {
     }
 
@@ -76,7 +76,7 @@ public:
 
     void calc_probabilities();
 
-    void employed_bee_phase();
+    void employed_bee_phase(bool random=true);
 
     void onlooker_bee_phase();
 
@@ -85,11 +85,12 @@ public:
     void waggle_dance(int idx_bee, int idx_other_bee);
 
     void random_choice_local_search(int index_individual);
+    void swap_conflicted_vertices(int index_individual);
 
     int find_best_bee();
 
     Individual run();
-    Individual run(char method);
+    Individual run(char method, int rcl_size);
 
     void print_colony() const;
 
@@ -98,6 +99,7 @@ public:
     void print_limit_no_improve() const;
 
     void print_bee(int idx) const;
+    void small_mutation(int index);
 };
 
 #endif

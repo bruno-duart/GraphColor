@@ -108,11 +108,12 @@ class TabuColoring : public MetaHeuristic
 private:
     ForwardListWrapper tabu_list;
     int T_iter{};
+    int max_iter{};
 
 public:
 
-    TabuColoring(int T_iter, int num_colors, const Graph& graph)
-    :MetaHeuristic(graph, num_colors), T_iter{T_iter}{
+    TabuColoring(const Graph& graph, int num_colors, int max_iter, int T_iter)
+    :MetaHeuristic(graph, num_colors), T_iter{T_iter}, max_iter{max_iter}{
 
     }
 

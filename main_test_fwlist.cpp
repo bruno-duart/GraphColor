@@ -7,7 +7,8 @@ int main() {
     flist.push_back(2, 20, 0);
     flist.push_front(0, 5, 0);
     flist.print();
-    flist.pop_front();
+    // flist.pop_front();
+    flist.list_erase(1);
     flist.print();
 
     return 0;

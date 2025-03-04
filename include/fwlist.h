@@ -24,6 +24,7 @@ public:
     void push_front(int index_i, int undo_color, int T_iter);
     void push_back(int index_i, int undo_color, int T_iter);
     bool pop_front();
+    bool list_erase(int index);
     int size() const;
     void print() const;
     std::forward_list<NodeData>& get_list() ;

@@ -3,6 +3,7 @@
 #include "solution.h"
 #include "utils.h"
 #include "heuristics.h"
+#include "fwlist.h"
 
 #include <iostream>
 #include <algorithm>
@@ -136,7 +137,7 @@ void ABCGraphColoring::onlooker_bee_phase()
         double r = static_cast<double>(rand()) / RAND_MAX;
 
         // Critério híbrido: 80% roleta, 20% escolha aleatória
-        if (r < 0.8)  
+        if (r < 0.8)
         {
             if (r < probabilities[emp_idx])
             {
@@ -149,7 +150,7 @@ void ABCGraphColoring::onlooker_bee_phase()
                 }
             }
         }
-        else  
+        else
         {
             // Escolhe aleatoriamente um empregado para seguir, garantindo diversidade
             int rand_emp_idx = randint(0, num_bees / 2 - 1);
@@ -185,21 +186,21 @@ void ABCGraphColoring::onlooker_bee_phase()
 
 void ABCGraphColoring::scout_bee_phase()
 {
-    static int global_no_improve = 0;  // Contador global de iterações sem melhora
+    static int global_no_improve = 0; // Contador global de iterações sem melhora
 
     for (int i = 0; i < num_bees; ++i)
     {
         if (limit_no_improve[i] > limit)
         {
             // 🔹 Critério adaptativo: se ninguém melhorou há muitas iterações, diminuir 'limit'
-            if (++global_no_improve > 10)  
+            if (++global_no_improve > 10)
             {
-                limit = std::max(5, limit - 1);  // Reduz limite (mínimo 5)
+                limit = std::max(5, limit - 1); // Reduz limite (mínimo 5)
                 global_no_improve = 0;
             }
 
             // 🔹 Em vez de reset completo, perturba ligeiramente antes de recriar a solução
-            if (rand() % 100 < 30)  // 30% das vezes, tenta pequena mutação
+            if (rand() % 100 < 30) // 30% das vezes, tenta pequena mutação
             {
                 small_mutation(i);
             }
@@ -208,8 +209,8 @@ void ABCGraphColoring::scout_bee_phase()
                 random_individual(num_colors, graph, colony.at(i));
                 evaluate_fitness(graph, colony.at(i), arrayFitness[i]);
             }
-            
-            limit_no_improve[i] = 0;  // Reset contador da abelha
+
+            limit_no_improve[i] = 0; // Reset contador da abelha
         }
     }
 }
@@ -221,7 +222,6 @@ void ABCGraphColoring::small_mutation(int index)
     evaluate_fitness(graph, colony.at(index), arrayFitness[index]);
 }
 
-
 void ABCGraphColoring::waggle_dance(int idx_bee, int idx_other_bee)
 {
     // int idx_other_bee = randint(0, (num_bees / 2) - 1);
@@ -231,26 +231,26 @@ void ABCGraphColoring::waggle_dance(int idx_bee, int idx_other_bee)
     int old_fit = arrayFitness.at(idx_bee);
     int new_color = colony.at(idx_other_bee)[rand_vertex];
 
-/*  colony.at(idx_bee)[rand_vertex] = colony.at(idx_other_bee)[rand_vertex];
+    /*  colony.at(idx_bee)[rand_vertex] = colony.at(idx_other_bee)[rand_vertex];
 
-    evaluate_fitness(graph, colony.at(idx_bee), arrayFitness.at(idx_bee));
+        evaluate_fitness(graph, colony.at(idx_bee), arrayFitness.at(idx_bee));
 
-    if (arrayFitness.at(idx_bee) > old_fit)
-    {
-        colony.at(idx_bee)[rand_vertex] = old_color;
-        arrayFitness.at(idx_bee) = old_fit;
-    }
-*/
+        if (arrayFitness.at(idx_bee) > old_fit)
+        {
+            colony.at(idx_bee)[rand_vertex] = old_color;
+            arrayFitness.at(idx_bee) = old_fit;
+        }
+    */
 
     // Calcula a mudança na fitness
     int delta_fitness = compute_fitness_change(graph, colony[idx_bee], rand_vertex, new_color);
-    
+
     // Aplica a mudança
     colony[idx_bee][rand_vertex] = new_color;
     arrayFitness[idx_bee] += delta_fitness;
 
     // Se a mudança piorou, reverte
-    if (delta_fitness > 0) 
+    if (delta_fitness > 0)
     {
         colony[idx_bee][rand_vertex] = old_color;
         arrayFitness[idx_bee] -= delta_fitness;
@@ -280,18 +280,19 @@ void ABCGraphColoring::waggle_dance(int idx_bee, int idx_other_bee)
 //     arrayFitness[index_individual] += delta_fitness;
 
 //     // Se a mudança piorou, reverte
-//     if (delta_fitness > 0) 
+//     if (delta_fitness > 0)
 //     {
 //         colony[index_individual][rand_vertex] = old_color;
 //         arrayFitness[index_individual] -= delta_fitness;
 //     }
 // }
 
-void ABCGraphColoring::random_choice_local_search(int index_individual) 
+void ABCGraphColoring::random_choice_local_search(int index_individual)
 {
     int rand_vertex = find_most_conflicted_vertex(colony[index_individual], graph);
-    
-    if (rand_vertex == -1) return; // Nenhum conflito encontrado
+
+    if (rand_vertex == -1)
+        return; // Nenhum conflito encontrado
 
     int old_color = colony.at(index_individual)[rand_vertex];
     int new_color = randint_diff(1, num_colors, old_color);
@@ -303,29 +304,31 @@ void ABCGraphColoring::random_choice_local_search(int index_individual)
     arrayFitness[index_individual] += delta_fitness;
 
     // Se a mudança piorou, reverte
-    if (delta_fitness > 0) 
+    if (delta_fitness > 0)
     {
         colony[index_individual][rand_vertex] = old_color;
         arrayFitness[index_individual] -= delta_fitness;
     }
 }
 
-void ABCGraphColoring::swap_conflicted_vertices(int index_individual) 
+void ABCGraphColoring::swap_conflicted_vertices(int index_individual)
 {
     int v1 = find_most_conflicted_vertex(colony[index_individual], graph);
-    if (v1 == -1) return; // Nenhum conflito encontrado
+    if (v1 == -1)
+        return; // Nenhum conflito encontrado
 
     // Escolhe um vizinho com conflito
     int v2 = -1;
-    for (int neighbor : graph.getNeighbors(v1)) 
+    for (int neighbor : graph.getNeighbors(v1))
     {
-        if (colony[index_individual][neighbor] == colony[index_individual][v1]) 
+        if (colony[index_individual][neighbor] == colony[index_individual][v1])
         {
             v2 = neighbor;
             break;
         }
     }
-    if (v2 == -1) return; // Nenhum vizinho conflitante encontrado
+    if (v2 == -1)
+        return; // Nenhum vizinho conflitante encontrado
 
     // Troca as cores
     std::swap(colony[index_individual][v1], colony[index_individual][v2]);
@@ -337,7 +340,7 @@ void ABCGraphColoring::swap_conflicted_vertices(int index_individual)
     arrayFitness[index_individual] += delta_fitness;
 
     // Se piorou, reverte a troca
-    if (delta_fitness > 0) 
+    if (delta_fitness > 0)
     {
         std::swap(colony[index_individual][v1], colony[index_individual][v2]);
         arrayFitness[index_individual] -= delta_fitness;
@@ -419,7 +422,7 @@ Individual ABCGraphColoring::run(char method, int rcl_size)
 
     while (num_iter_no_improv < max_iter)
     {
-        employed_bee_phase(true); //true é random_search, false é swap_two_colors
+        employed_bee_phase(true); // true é random_search, false é swap_two_colors
         onlooker_bee_phase();
         scout_bee_phase();
 
@@ -550,10 +553,10 @@ void GRASPGraphColoring::LocalSearch(Individual &indv, Fitness &fit, int &accept
         // }
         // else
         // {
-            aux = indv[first_index];
-            indv[first_index] = indv[second_index];
-            indv[second_index] = aux;
-            fit = old_fit;
+        aux = indv[first_index];
+        indv[first_index] = indv[second_index];
+        indv[second_index] = aux;
+        fit = old_fit;
         // }
     }
 }
@@ -567,7 +570,8 @@ void GRASPGraphColoring::UpdateSolution(const Individual &indv, const Fitness &f
         copy_individual(indv, fit, best_indv, best_fit);
         acceptanceratio = 0;
     }
-    else {
+    else
+    {
         acceptanceratio++;
     }
 }
@@ -590,4 +594,127 @@ Individual GRASPGraphColoring::run()
     return best_indv;
 }
 
+#pragma endregion
+
+#pragma region TabuSearch
+void TabuColoring::insert_tabu_move(int undo_color, int idx_vert)
+{
+    tabu_list.push_back(idx_vert, undo_color, T_iter);
+}
+int TabuColoring::is_tabu_move(int undo_color, int idx_vert)
+{
+    int position{0};
+    for (const auto &node : tabu_list.get_list())
+    {
+        if (node.index_i == idx_vert && node.undo_color == undo_color)
+            return position;
+        position++;
+    }
+    return -1;
+}
+void TabuColoring::decrease_iterations()
+{
+    auto &flist = tabu_list.get_list();
+    auto prev = flist.before_begin();
+
+    for (auto it = flist.begin(); it != flist.end();)
+    {
+        it->count_iter--;
+        if (it->count_iter == 0)
+        {
+            it = flist.erase_after(prev);
+            tabu_list.decrease_size();
+        }
+        else
+        {
+            prev = it;
+            ++it;
+        }
+    }
+}
+
+Individual TabuColoring::run()
+{
+    // return
+    // Iniciar solução
+
+    int num_iter{0};
+    int num_gen_sol{(graph.getNumVertices() > 100) ? (int)(graph.getNumVertices() * 0.1) : 5};
+
+    std::vector<Individual> arr_solutions;
+    std::vector<Fitness> arr_fit;
+
+    Individual indv = initialize_individual(num_colors, graph);
+    Fitness fit{};
+    evaluate_fitness(graph, indv, fit);
+
+    Individual best_indv{};
+    Fitness best_fit{graph.getNumEdges()}; // Inicializando com número de arestas do grafo
+
+    for (int i{0}; i < num_gen_sol; ++i)
+    {
+        arr_solutions.push_back(Individual(graph.getNumVertices()));
+        arr_fit.push_back(graph.getNumEdges());
+    }
+
+    while (best_fit > 0 && num_iter < max_iter)
+    {
+        int lower{0};
+        int index{0};
+        int undo_color{0};
+
+        for (int i{0}; i < num_gen_sol; ++i)
+        {
+            int vertex{randint(0, graph.getNumVertices() - 1)};
+            copy_individual(indv, fit, arr_solutions[i], arr_fit[i]);
+            int new_color = randint_diff(0, num_colors, arr_solutions[i][vertex]);
+            arr_solutions[i][vertex] = new_color;
+            evaluate_fitness(graph, arr_solutions[i], arr_fit[i]);
+
+            if (arr_fit[i] < arr_fit[lower])
+            {
+                lower = i;
+            }
+        }
+
+        for (int vertex{0}; vertex < graph.getNumVertices(); ++vertex)
+        {
+            if (arr_solutions[lower][vertex] != indv[vertex])
+            {
+                undo_color = indv[vertex];
+                index = vertex;
+                break;
+            }
+        }
+
+        int is_tabu{is_tabu_move(undo_color, index)};
+        if (is_tabu == 0)
+        {
+            copy_individual(arr_solutions[lower], arr_fit[lower], indv, fit);
+            insert_tabu_move(undo_color, index);
+        }
+        else if (arr_fit[lower] < fit)
+        {
+            tabu_list.list_erase(is_tabu);
+            copy_individual(arr_solutions[lower], arr_fit[lower], indv, fit);
+        }
+        decrease_iterations();
+
+        if (fit < best_fit)
+        {
+            num_iter = 0;
+            copy_individual(indv, fit, best_indv, best_fit);
+        }
+        else
+        {
+            num_iter++;
+        }
+    }
+    return best_indv;
+}
+
+void TabuColoring::print_tabu_list()
+{
+    tabu_list.print();
+}
 #pragma endregion

@@ -4,6 +4,7 @@
 #include "graphs.h"
 #include "solution.h"
 #include "utils.h"
+#include "fwlist.h"
 
 class MetaHeuristic
 {
@@ -39,7 +40,7 @@ public:
 
     Individual BuildPhase();
     void LocalSearch(Individual &indv, Fitness &fit, int &acceptanceratio);
-    void UpdateSolution(const Individual& indv, const Fitness& fit, int& acceptanceratio);
+    void UpdateSolution(const Individual &indv, const Fitness &fit, int &acceptanceratio);
 
     Individual run();
 };
@@ -76,7 +77,7 @@ public:
 
     void calc_probabilities();
 
-    void employed_bee_phase(bool random=true);
+    void employed_bee_phase(bool random = true);
 
     void onlooker_bee_phase();
 
@@ -100,6 +101,29 @@ public:
 
     void print_bee(int idx) const;
     void small_mutation(int index);
+};
+
+class TabuColoring : public MetaHeuristic
+{
+private:
+    ForwardListWrapper tabu_list;
+    int T_iter{};
+    int max_iter{};
+
+public:
+
+    TabuColoring(const Graph& graph, int num_colors, int max_iter, int T_iter)
+    :MetaHeuristic(graph, num_colors), T_iter{T_iter}, max_iter{max_iter}{
+
+    }
+
+    void insert_tabu_move(int undo_color, int idx_vert);
+    int is_tabu_move(int undo_color, int idx_vert);
+    void decrease_iterations();
+
+    Individual run();
+
+    void print_tabu_list();
 };
 
 #endif

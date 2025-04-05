@@ -4,6 +4,7 @@
 #include "graphs.h"
 #include <iostream>
 #include <vector>
+#include <random>
 
 typedef std::vector<int> Individual;
 typedef int Fitness;
@@ -26,4 +27,8 @@ void print_individual(const Individual& indv, const Fitness& fit);
 
 int compute_fitness_change(Graph &graph, Individual &ind, int vertex, int new_color);
 int find_most_conflicted_vertex(Individual &ind, Graph &graph);
+int find_second_most_conflicted_vertex(Individual &indv, Graph &graph, int most_conflicted);
+
+void explore_neighborhood(Individual& new_indv, const Individual& indv, Fitness& new_fit, const Fitness& fit, const Graph& graph, int num_colors, std::mt19937& rng);
+bool vertex_has_conflicts(Graph &graph, const Individual &indv, const int &vertex_id);
 #endif

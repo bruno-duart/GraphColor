@@ -5,25 +5,30 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 #include <vector>
 #include <set>
 #include <numeric>
+#include <random>
 
-Individual GreedyGraphColoring::run_pseudo_greedy(){
+Individual GreedyGraphColoring::run_pseudo_greedy()
+{
     indv.assign(graph.getNumVertices(), -1);
     Fitness fit{0};
 
-    //Seleção dos vértices a serem pré-coloridos aleatoriamente
+    // Seleção dos vértices a serem pré-coloridos aleatoriamente
     std::set<int> pre_colored_vertices;
-    while ((int) pre_colored_vertices.size() < 3){
-        int rand_vert{randint(0, graph.getNumVertices()-1)};
+    while ((int)pre_colored_vertices.size() < 3)
+    {
+        int rand_vert{randint(0, graph.getNumVertices() - 1, rng)};
         pre_colored_vertices.insert(rand_vert);
     }
-    //Atribuição aleatória de cores
-    for (int v : pre_colored_vertices){
-        indv[v] = randint(0, num_color-1);
+    // Atribuição aleatória de cores
+    for (int v : pre_colored_vertices)
+    {
+        indv[v] = randint(0, num_color - 1, rng);
     }
-    
+
     // Atribuir cores aos vértices com estratégia gulosa
     for (int v{0}; v < graph.getNumVertices(); ++v)
     {
@@ -38,7 +43,7 @@ Individual GreedyGraphColoring::run_pseudo_greedy(){
                 forbidden_colors[indv[neighbor]] = true;
             }
         }
-        
+
         int chosen_color = -1;
         for (int color = 0; color < num_color; ++color)
         {
@@ -57,6 +62,145 @@ Individual GreedyGraphColoring::run_pseudo_greedy(){
                 if (indv[neighbor] == chosen_color)
                     ++fit;
             }
+        }
+
+        indv[v] = chosen_color;
+    }
+    return indv;
+}
+/// @brief Incluindo maior aleatoriedade
+/// @return
+Individual GreedyGraphColoring::run_pseudo_greedy_v2()
+{
+    indv.assign(graph.getNumVertices(), -1);
+    Fitness fit{0};
+
+    // Seleção dos vértices a serem pré-coloridos aleatoriamente
+    std::set<int> pre_colored_vertices;
+    while ((int)pre_colored_vertices.size() < std::max(3, (int)sqrt(graph.getNumVertices())))
+    {
+        int rand_vert{randint(0, graph.getNumVertices() - 1, rng)};
+        pre_colored_vertices.insert(rand_vert);
+    }
+    // Atribuição aleatória de cores
+    for (int v : pre_colored_vertices)
+    {
+        indv[v] = randint(0, num_color - 1, rng);
+    }
+
+    // Atribuir cores aos vértices com estratégia gulosa
+    for (int v{0}; v < graph.getNumVertices(); ++v)
+    {
+        if (indv[v] != -1)
+            continue;
+
+        std::vector<bool> forbidden_colors(num_color, false);
+        for (auto neighbor : graph.adjList[v])
+        {
+            if (indv[neighbor] != -1)
+            {
+                forbidden_colors[indv[neighbor]] = true;
+            }
+        }
+
+        std::vector<int> available_colors;
+        for (int color = 0; color < num_color; ++color)
+        {
+            if (!forbidden_colors[color])
+            {
+                available_colors.push_back(color);
+                break;
+            }
+        }
+
+        int chosen_color{-1};
+        if (!available_colors.empty())
+        {
+            chosen_color = available_colors[randint(0, available_colors.size() - 1, rng)];
+        }
+        else
+        {
+            chosen_color = find_color_least_conflicts(v);
+            for (auto neighbor : graph.adjList[v])
+            {
+                if (indv[neighbor] == chosen_color)
+                    ++fit;
+            }
+        }
+
+        indv[v] = chosen_color;
+    }
+    return indv;
+}
+
+Individual GreedyGraphColoring::run_pseudo_greedy_v3()
+{
+    indv.assign(graph.getNumVertices(), -1);
+    Fitness fit{0};
+
+    int num_precolored = std::max(3, static_cast<int>(sqrt(graph.getNumVertices())));
+
+    // Generate a shuffled list of vertices
+    std::vector<int> vertex_list(graph.getNumVertices());
+    std::iota(vertex_list.begin(), vertex_list.end(), 0);
+    std::shuffle(vertex_list.begin(), vertex_list.end(), rng);
+
+    // Seleção dos vértices a serem pré-coloridos aleatoriamente
+    std::set<int> pre_colored_vertices;
+    for (int i{0}; i < num_precolored; i++)
+    {
+        pre_colored_vertices.insert(vertex_list[i]);
+    }
+
+    // std::cout << "Pré-coloridos: ";
+    // for (int v : pre_colored_vertices)
+    //     std::cout << v << " ";
+    // std::cout << std::endl;
+    // Atribuir cores aos vértices com estratégia gulosa
+    for (int v{0}; v < graph.getNumVertices(); ++v)
+    {
+        if (indv[v] != -1)
+            continue;
+
+        std::vector<bool> forbidden_colors(num_color, false);
+        for (auto neighbor : graph.adjList[v])
+        {
+            if (indv[neighbor] != -1)
+            {
+                forbidden_colors[indv[neighbor]] = true;
+            }
+        }
+
+        std::vector<int> available_colors;
+        for (int color = 0; color < num_color; ++color)
+        {
+            if (!forbidden_colors[color])
+            {
+                available_colors.push_back(color);
+                break;
+            }
+        }
+
+        int chosen_color{-1};
+        if (!available_colors.empty())
+        {
+            std::uniform_int_distribution<int> dist(0, available_colors.size() - 1);
+            chosen_color = available_colors[dist(rng)];
+        }
+        else
+        {
+            chosen_color = find_color_least_conflicts(v);
+            for (auto neighbor : graph.adjList[v])
+            {
+                if (indv[neighbor] == chosen_color)
+                    ++fit;
+            }
+        }
+        // Pequena chance de escolher uma cor aleatória (introduz ruído)
+        if (std::bernoulli_distribution(0.1)(rng))
+        {
+            std::uniform_int_distribution<int> dist(0, num_color - 1);
+            chosen_color = dist(rng);
         }
 
         indv[v] = chosen_color;
@@ -83,7 +227,7 @@ Individual GreedyGraphColoring::run()
                 forbidden_colors[indv[neighbor]] = true;
             }
         }
-        
+
         int chosen_color = -1;
         for (int color = 0; color < num_color; ++color)
         {

@@ -15,7 +15,7 @@ std::get<2>(entry)   // access expiration_iter
 
 void TabuColoringV2::insert_tabu_move(int vertex, int from_color, int current_iter)
 {
-    tabu_list.push_back(std::make_tuple(vertex, from_color, current_iter + T_iter));
+    tabu_list.push_back(std::make_tuple(vertex, from_color, current_iter + tabu_tenure));
 }
 bool TabuColoringV2::is_tabu_move(int vertex, int from_color, int current_iter)
 {
@@ -25,7 +25,7 @@ bool TabuColoringV2::is_tabu_move(int vertex, int from_color, int current_iter)
         {
             if (std::get<2>(entry) > current_iter)
             {
-                return true; // Elemento is tabu
+                return true; // Element is tabu
             }
         }
     }
@@ -59,10 +59,12 @@ void TabuColoringV2::generate_neighborhood(const Individual &indv, const Fitness
 Individual TabuColoringV2::run()
 {
     int num_iter{0};
-    int num_gen_sol{(graph.getNumVertices() > 100) ? (int)(graph.getNumVertices() * 0.1) : 5};
+    int max_iter_no_improve = std::max(10, max_iter/10);
+    tabu_tenure = std::max(1, static_cast<int>(T_iter * graph.getNumVertices() / 100));
 
-    GreedyGraphColoring greedy = GreedyGraphColoring(graph, num_colors, rng);
-    Individual indv = greedy.run_pseudo_greedy_v3();
+    // GreedyGraphColoring greedy = GreedyGraphColoring(graph, num_colors, rng);
+    // Individual indv = greedy.run();
+    Individual indv = initialize_individual(num_colors, graph, rng);
     Fitness fit{};
     evaluate_fitness(graph, indv, fit);
 
@@ -74,10 +76,6 @@ Individual TabuColoringV2::run()
     int iter_total{0};
     while (best_fit > 0 && num_iter < max_iter)
     {
-        int lower{0};
-        int index{0};
-        int undo_color{0};
-
         generate_neighborhood(indv, fit);
 
         Individual best_candidate = indv;
@@ -86,17 +84,16 @@ Individual TabuColoringV2::run()
 
         for (const auto &move : neighborhood)
         {
-            Individual candidate = indv;
-            candidate[move.vertex] = move.to_color;
-            Fitness candidate_fit{0};
-            evaluate_fitness(graph, candidate, candidate_fit);
-
+            int delta = compute_fitness_change(graph, indv, move.vertex, move.to_color);
+            Fitness candidate_fit = fit + delta;            
+            
             bool tabu = is_tabu_move(move.vertex, move.from_color, iter_total);
             bool aspiration = candidate_fit < best_fit; // Aspiration criteria
 
             if ((!tabu || aspiration) && (candidate_fit < best_candidate_fit))
             {
-                best_candidate = candidate;
+                best_candidate = indv;
+                best_candidate[move.vertex] = move.to_color;
                 best_candidate_fit = candidate_fit;
                 best_move = move;
             }

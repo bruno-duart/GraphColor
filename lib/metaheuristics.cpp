@@ -33,4 +33,14 @@ int MetaHeuristic::find_color_least_conflicts(const Individual &indv, int curren
     return least_conflict_color;
 }
 
+// Function to Perturb the Best Solution
+void MetaHeuristic::perturb_best_solution(Individual &indv)
+{
+    int num_changes = std::max(1, static_cast<int>(graph.getNumVertices() * 0.02)); // Change 2% of vertices
+    for (int i = 0; i < num_changes; i++)
+    {
+        int v = randint(0, graph.getNumVertices() - 1, rng);
+        indv[v] = randint(0, num_colors - 1, rng);
+    }
+}
 #pragma endregion

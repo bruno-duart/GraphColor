@@ -152,11 +152,6 @@ Individual GreedyGraphColoring::run_pseudo_greedy_v3()
         pre_colored_vertices.insert(vertex_list[i]);
     }
 
-    // std::cout << "Pré-coloridos: ";
-    // for (int v : pre_colored_vertices)
-    //     std::cout << v << " ";
-    // std::cout << std::endl;
-    // Atribuir cores aos vértices com estratégia gulosa
     for (int v{0}; v < graph.getNumVertices(); ++v)
     {
         if (indv[v] != -1)

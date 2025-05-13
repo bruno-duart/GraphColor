@@ -24,10 +24,13 @@ void evaluate_fitness(const Graph &graph, const Individual &indv, Fitness &fitne
 }
 
 // Método para gerar uma solução aleatória
-void random_individual(int num_color, const Graph &graph, Individual &indv)
+void random_individual(int num_color, const Graph &graph, Individual &indv, std::mt19937 &rng)
 {
     for (int i = 0; i < graph.getNumVertices(); i++)
-        indv[i] = (rand() % num_color) + 1;
+    {
+        // indv[i] = (rand() % num_color) + 1;
+        indv[i] = randint(0, num_color - 1, rng);
+    }
 
     // evaluate_fitness(graph);
 }
@@ -40,10 +43,10 @@ void copy_individual(const Individual &from, const Fitness &fit_from, Individual
 }
 
 // Função para criar uma solução inicial
-Individual initialize_individual(int num_color, const Graph &graph)
+Individual initialize_individual(int num_color, const Graph &graph, std::mt19937 &rng)
 {
     Individual indv(graph.getNumVertices());
-    random_individual(num_color, graph, indv);
+    random_individual(num_color, graph, indv, rng);
     return indv;
 }
 
@@ -148,6 +151,26 @@ void explore_neighborhood(Individual &new_indv, const Individual &indv, Fitness 
     new_indv[vertex] = new_color;
     evaluate_fitness(graph, new_indv, new_fit);
 }
+
+// void explore_neighborhood(Individual &new_indv, const Individual &indv, Fitness &new_fit, const Fitness &fit,
+//                           const Graph &graph, int num_colors, std::mt19937 &rng, double curr_Temp)
+// {
+//     copy_individual(indv, fit, new_indv, new_fit);
+
+//     int num_changes = (curr_Temp > 1.0) ? 2 : 1;
+
+//     int max_changes{4};
+//     int min_changes
+
+//     for (int i = 0; i < num_changes; ++i)
+//     {
+//         int vertex = randint(0, graph.getNumVertices() - 1, rng);
+//         int new_color = randint_diff(0, num_colors, new_indv[vertex], rng);
+//         new_indv[vertex] = new_color;
+//     }
+
+//     evaluate_fitness(graph, new_indv, new_fit);
+// }
 
 bool vertex_has_conflicts(Graph &graph, const Individual &indv, const int &vertex_id)
 {

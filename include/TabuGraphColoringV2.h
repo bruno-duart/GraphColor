@@ -3,12 +3,21 @@
 
 #include "metaheuristics.h"
 #include <list>
+#include <tuple>
+
+typedef struct t_move
+{
+    int vertex;
+    int from_color;
+    int to_color;
+} Move;
 
 class TabuColoringV2 : public MetaHeuristic
 {
 private:
     std::list<std::tuple<int, int, int>> tabu_list;
     int T_iter{};
+    int tabu_tenure{};
     int max_iter{};
     std::vector<Move> neighborhood{};
 
@@ -27,13 +36,6 @@ public:
     Individual run();
 
     void print_tabu_list();
-};
-
-struct Move
-{
-    int vertex;
-    int from_color;
-    int to_color;
 };
 
 #endif

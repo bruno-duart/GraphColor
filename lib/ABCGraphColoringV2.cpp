@@ -14,7 +14,7 @@ void ABCGraphColoringV2::initialize_employedBees_random()
 {
     for (int i{0}; i < num_employed; ++i)
     {
-        employedBees[i] = initialize_individual(num_colors, graph);
+        employedBees[i] = initialize_individual(num_colors, graph, rng);
         evaluate_fitness(graph, employedBees[i], employedsFitness[i]);
     }
 }
@@ -449,7 +449,7 @@ void ABCGraphColoringV2::scout_bee_phase()
     {
         if (limit_no_improve[i] > limit)
         {
-            random_individual(num_colors, graph, employedBees[i]);
+            random_individual(num_colors, graph, employedBees[i], rng);
             evaluate_fitness(graph, employedBees[i], employedsFitness[i]);
             limit_no_improve[i] = 0;
         }
@@ -467,17 +467,6 @@ void ABCGraphColoringV2::scout_bee_phase_enhanced(Individual &best_bee, Fitness 
             evaluate_fitness(graph, employedBees[i], employedsFitness[i]);
             limit_no_improve[i] = 0;
         }
-    }
-}
-
-// Function to Perturb the Best Solution
-void ABCGraphColoringV2::perturb_best_solution(Individual &indv)
-{
-    int num_changes = std::max(1, static_cast<int>(graph.getNumVertices() * 0.02)); // Change 2% of vertices
-    for (int i = 0; i < num_changes; i++)
-    {
-        int v = randint(0, graph.getNumVertices() - 1, rng);
-        indv[v] = randint(0, num_colors - 1, rng);
     }
 }
 

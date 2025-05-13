@@ -55,7 +55,6 @@ public:
     void random_choice_local_search(int index_individual, Individual &indv, Fitness &fit);
     void enhanced_random_search(int index_individual, Individual &indv, Fitness &current_fitness);
     void swap_conflicted_vertices(Individual &indv, Fitness &fit);
-    void perturb_best_solution(Individual &indv);
     /// @brief Sempre aplica em cima da abelha selecionada e tenta aprender com as empregadas
     /// @param idx_bee
     /// @param bees

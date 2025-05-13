@@ -12,14 +12,14 @@ typedef int Fitness;
 void evaluate_fitness(const Graph &graph, const Individual& indv, Fitness& fitness);
 
 // Método para gerar uma solução aleatória
-void random_individual(int num_color, const Graph &graph, Individual& indv);
+void random_individual(int num_color, const Graph &graph, Individual& indv, std::mt19937 &rng);
 
 
 // Método para copiar uma solução para outra
 void copy_individual(const Individual &from, const Fitness& fit_from, Individual &to, Fitness& fit_to);
 
 // Função para criar uma solução inicial
-Individual initialize_individual(int num_color, const Graph &graph);
+Individual initialize_individual(int num_color, const Graph &graph, std::mt19937 &rng);
 
 // Método para exibir a solução
 void individual_toString(const Individual& indv); 

@@ -15,7 +15,7 @@ void ABCGraphColoring::initialize_colony()
 {
     for (int i{0}; i < num_bees; ++i)
     {
-        colony[i] = initialize_individual(num_colors, graph);
+        colony[i] = initialize_individual(num_colors, graph, rng);
         evaluate_fitness(graph, colony[i], arrayFitness[i]);
     }
 }
@@ -170,7 +170,7 @@ void ABCGraphColoring::scout_bee_phase()
             }
             else
             {
-                random_individual(num_colors, graph, colony.at(i));
+                random_individual(num_colors, graph, colony.at(i), rng);
                 evaluate_fitness(graph, colony.at(i), arrayFitness[i]);
             }
 

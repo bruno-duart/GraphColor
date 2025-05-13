@@ -1,21 +1,19 @@
-#include "graphs.h"
-#include "solution.h"
-#include "metaheuristics.h"
+#include "GRASPGraphColoring.h"
 
 #include <iostream>
 #include <fstream>
-#include <cstdlib> // Para usar rand()
-#include <ctime>   // Para usar time()
+#include <random>
 #include <chrono>
 
 int main(int argc, char *argv[])
 {
-    srand(time(nullptr));
     if (argc < 5)
     {
         std::cout << "Please, provide parameters: <instance_path> <num_colors> <method> <output_path>" << std::endl;
         return 1;
     }
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 rng(seed);
 
     // Exemplo de uso: carregando um grafo a partir de um arquivo DIMACS
     std::string filename{argv[1]};
@@ -28,7 +26,7 @@ int main(int argc, char *argv[])
 
     int max_rcl_size{num_color / 2};
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-    GRASPGraphColoring grasp = GRASPGraphColoring(graph, num_color, max_rcl_size);
+    GRASPGraphColoring grasp = GRASPGraphColoring(graph, num_color, rng, max_rcl_size);
 
     if (method == 'b') {
         indv = grasp.BuildPhase();

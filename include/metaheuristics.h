@@ -24,6 +24,7 @@ public:
     virtual ~MetaHeuristic() {}
 
     int find_color_least_conflicts(const Individual &indv, int current_vert);
+    void perturb_best_solution(Individual &indv);
 };
 
 #endif

@@ -55,5 +55,8 @@ results_abc/*
 results_abc_2/*
 results_abc_3/*
 results_abc_v2/*
+results_abc_v3/*
 results_sa/*
 results_tabu/*
+shell_scripts/abc*
+results_abc_tabu/*

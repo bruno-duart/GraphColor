@@ -1,16 +1,15 @@
-#include "graphs.h"
-#include "solution.h"
-#include "metaheuristics.h"
+#include "ABCGraphColoring.h"
 
 #include <iostream>
 #include <fstream>
-#include <cstdlib> // Para usar rand()
-#include <ctime>   // Para usar time()
+#include <random>
 #include <chrono>
 
 int main(int argc, char *argv[])
 {
-    srand(time(nullptr));
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 rng(seed);
+
     if (argc < 9)
     {
         std::cout << "Please, provide parameters: <instance_path> <num_colors> <num_bees> <max_iter> <limit> <output_path> <method> <rcl_size>" << std::endl;
@@ -31,7 +30,7 @@ int main(int argc, char *argv[])
     Fitness fit{};
 
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-    ABCGraphColoring abc(num_bees, num_color, max_iter, limit, graph);
+    ABCGraphColoring abc(num_bees, num_color, max_iter, limit, graph, rng);
 
     indv = abc.run(method, rcl_size);
     evaluate_fitness(graph, indv, fit);

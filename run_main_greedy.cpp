@@ -1,9 +1,8 @@
-#include "graphs.h"
-#include "solution.h"
 #include "heuristics.h"
 
 #include <iostream>
 #include <fstream>
+#include <random>
 #include <chrono>
 
 int main(int argc, char *argv[])
@@ -13,6 +12,9 @@ int main(int argc, char *argv[])
         std::cout << "Please, provide parameters: <instance_path> <num_colors> <output_path>" << std::endl;
         return 1;
     }
+    
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 rng(seed);
 
     // Exemplo de uso: carregando um grafo a partir de um arquivo DIMACS
     std::string filename = argv[1];
@@ -23,7 +25,7 @@ int main(int argc, char *argv[])
     Fitness fit{};
 
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-    GreedyGraphColoring greedy = GreedyGraphColoring(graph, num_color);
+    GreedyGraphColoring greedy = GreedyGraphColoring(graph, num_color, rng);
 
     indv = greedy.run();
     evaluate_fitness(graph, indv, fit);

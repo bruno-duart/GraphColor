@@ -33,7 +33,25 @@
 
 #other files
 run_abc
+run_abc_v2
+run_abc_calib
+run_grasp
 run_greedy
+run_sa
+run_tabu
+run_tabu_v2
+run_main_abc_v2
+run_main_abc_v3
 main
+main_test_fwlist
 main_test_greedy
 main_test_grasp
+main_test_tabu_search
+main_test_abc_v2
+main_test_abc_v3
+main_test_sa
+Optuna.ipynb:Zone.Identifier
+results_abc/*
+results_abc_2/*
+results_abc_3/*
+results_abc_v2/*

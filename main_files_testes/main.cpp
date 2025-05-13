@@ -1,16 +1,15 @@
-#include "graphs.h"
-#include "solution.h"
-#include "metaheuristics.h"
+#include "ABCGraphColoring.h"
 
 #include <iostream>
-#include <cstdlib> // Para usar rand()
-#include <ctime>   // Para usar time()
+#include <random>
+#include <chrono>
 
 std::vector<Fitness> fitness;
 
 int main()
 {
-    srand(time(nullptr));
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 rng(seed);
 
     // Exemplo de uso: carregando um grafo a partir de um arquivo DIMACS
     std::string filename = "instances/le450_15a.col";
@@ -24,7 +23,7 @@ int main()
     int max_iter{1000};
     int limit{50};
 
-    ABCGraphColoring abc = ABCGraphColoring(num_bees, num_color, max_iter, limit, graph);
+    ABCGraphColoring abc = ABCGraphColoring(num_bees, num_color, max_iter, limit, graph, rng);
 
     indv = abc.run();
     evaluate_fitness(graph, indv, fit);

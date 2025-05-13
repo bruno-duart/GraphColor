@@ -3,8 +3,7 @@
 #include "heuristics.h"
 
 #include <iostream>
-#include <cstdlib> // Para usar rand()
-#include <ctime>   // Para usar time()
+#include <random>
 #include <chrono>
 
 using high_clock = std::chrono::high_resolution_clock;
@@ -12,7 +11,8 @@ using us = std::chrono::microseconds;
 
 int main()
 {
-    srand(time(nullptr));
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 rng(seed);
     // Exemplo de uso: carregando um grafo a partir de um arquivo DIMACS
     std::string filename = "instances/myciel3.col";
     Graph graph(filename);
@@ -21,7 +21,7 @@ int main()
     Individual indv{};
     Fitness fit{};
 
-    GreedyGraphColoring greedy = GreedyGraphColoring(graph, num_color);
+    GreedyGraphColoring greedy = GreedyGraphColoring(graph, num_color, rng);
 
     std::cout << "Pseudo-greedy:\n";
     auto time = high_clock::now();

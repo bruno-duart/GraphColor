@@ -1,14 +1,13 @@
-#include "graphs.h"
-#include "solution.h"
-#include "metaheuristics.h"
+#include "GRASPGraphColoring.h"
 
 #include <iostream>
-#include <cstdlib> // Para usar rand()
-#include <ctime>   // Para usar time()
+#include <random>
+#include <chrono>
 
 int main()
 {
-    srand(time(nullptr));
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 rng(seed);
     // Exemplo de uso: carregando um grafo a partir de um arquivo DIMACS
     std::string filename{"instances/le450_15a.col"};
     Graph graph(filename);
@@ -19,7 +18,7 @@ int main()
     Individual indv{};
     Fitness fit{};
 
-    GRASPGraphColoring grasp = GRASPGraphColoring(graph, num_color, max_rcl_size);
+    GRASPGraphColoring grasp = GRASPGraphColoring(graph, num_color, rng, max_rcl_size);
     indv = grasp.BuildPhase();
     evaluate_fitness(graph, indv, fit);
     print_individual(indv, fit);

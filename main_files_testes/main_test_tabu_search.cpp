@@ -1,17 +1,20 @@
-#include "metaheuristics.h"
+#include "TabuGraphColoring.h"
 #include <iostream>
+#include <random>
+#include <chrono>
 
 int main(){
-    srand(time(nullptr));
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 rng(seed);
 
     // Exemplo de uso: carregando um grafo a partir de um arquivo DIMACS
-    std::string filename = "instances/myciel7.col";
+    std::string filename = "instances/le450_15c.col";
     Graph graph(filename);
-    int num_color = 8;
+    int num_color = 15;
     int T_iter{25};
     int max_iter{100};
 
-    TabuColoring tabu(graph, num_color, T_iter, max_iter);
+    TabuColoring tabu(graph, num_color, T_iter, max_iter, rng);
 
     Individual indv = tabu.run();
     Fitness fit {};

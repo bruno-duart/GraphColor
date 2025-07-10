@@ -26,6 +26,7 @@ void individual_toString(const Individual& indv);
 void print_individual(const Individual& indv, const Fitness& fit);
 
 int compute_fitness_change(Graph &graph, Individual &ind, int vertex, int new_color);
+int compute_swap_fitness_change(Graph &graph, Individual &indv, int u, int v);
 int find_most_conflicted_vertex(Individual &ind, Graph &graph);
 int find_second_most_conflicted_vertex(Individual &indv, Graph &graph, int most_conflicted);
 

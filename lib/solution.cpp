@@ -88,6 +88,26 @@ int compute_fitness_change(Graph &graph, Individual &ind, int vertex, int new_co
     return conflict_change;
 }
 
+int compute_swap_fitness_change(Graph &graph, Individual &indv, int u, int v){
+    int delta{0};
+    int color_u{indv[u]};
+    int color_v{indv[v]};
+
+    for (auto neighbor: graph.getNeighbors(u)){
+        if (neighbor == v) continue;
+        if (indv[neighbor] == color_u) delta--; // removendo conflito antigo
+        if (indv[neighbor] == color_v) delta++; // possível novo conflito
+    }
+
+    for (auto neighbor: graph.getNeighbors(v)){
+        if (neighbor == u) continue;
+        if (indv[neighbor] == color_v) delta--; // removendo conflito antigo
+        if (indv[neighbor] == color_u) delta++; // possível novo conflito
+    }
+
+    return delta;
+}
+
 int find_most_conflicted_vertex(Individual &ind, Graph &graph)
 {
     int worst_vertex = -1;

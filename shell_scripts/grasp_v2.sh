@@ -52,11 +52,11 @@ csv_file="instances_with_k.csv"
 
 
 tail -n +2 "$csv_file" | while IFS=';' read -r instance_name V E D xk k group; do
-    # echo "Running Tests with Swap Local Search"
-    # for n_test in {1..25}; do
-    #     echo ./run_main_grasp_v2 "inst: $instance_name.col" "colors: $k" "Max_iter: 100" "alpha_int: 2" "output: results_grasp_v2/results/swap/$instance_name.txt" "method: swap" "test: $n_test"
-    #     ./run_main_grasp_v2 instances/$instance_name.col $k 100 2 s results_grasp_v2/results/swap/$instance_name.txt
-    # done
+    echo "Running Tests with Swap Local Search"
+    for n_test in {1..25}; do
+        echo ./run_main_grasp_v2 "inst: $instance_name.col" "colors: $k" "Max_iter: 100" "alpha_int: 2" "output: results_grasp_v2/results/swap/$instance_name.txt" "method: swap" "test: $n_test"
+        ./run_main_grasp_v2 instances/$instance_name.col $k 100 2 s results_grasp_v2/results/swap/$instance_name.txt
+    done
     echo "Running Tests with Kempe Local Search"
     for n_test in {1..25}; do
         echo ./run_main_grasp_v2 "inst: $instance_name.col" "colors: $k" "Max_iter: 10" "alpha_int: 1" "output: results_grasp_v2/results/kempe/$instance_name.txt" "method: kempe" "test: $n_test"
